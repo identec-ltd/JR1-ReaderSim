@@ -1,0 +1,11 @@
+﻿  main.c
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\main.c(83,28): warning C4013: 'processRxCommand' undefined; assuming extern returning int
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\main.c(130,18): warning C4013: 'encrypt_data' undefined; assuming extern returning int
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\main.c(142,22): warning C4013: 'calculate_R_MAC2' undefined; assuming extern returning int
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\main.c(529,22): warning C4013: 'calculate_CRC' undefined; assuming extern returning int
+  msgHandler.c
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\msgHandler.c(39,24): warning C4013: 'check_crc' undefined; assuming extern returning int
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\msgHandler.c(69,15): warning C4013: 'decrypt_data' undefined; assuming extern returning int
+C:\Users\PaulSilcock\source\repos\OSDP_PD\OSDP_PD\msgHandler.c(120,18): warning C4013: 'calculate_C_MAC2' undefined; assuming extern returning int
+  Generating Code...
+  OSDP_PD.vcxproj -> C:\Users\PaulSilcock\source\repos\OSDP_PD\Debug\OSDP_PD.exe
