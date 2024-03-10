@@ -24,6 +24,7 @@
     <ProjectGuid>{d13523f9-6ad9-4e8a-afe3-ecc1130ab3fe}</ProjectGuid>
     <RootNamespace>OSDPPD</RootNamespace>
     <WindowsTargetPlatformVersion>10.0</WindowsTargetPlatformVersion>
+    <ProjectName>TagProgSim</ProjectName>
   </PropertyGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.Default.props" />
   <PropertyGroup Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'" Label="Configuration">
@@ -144,7 +145,6 @@
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="Header.h" />
-    <ClInclude Include="msgHandler.h" />
     <ClInclude Include="serial.h" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />

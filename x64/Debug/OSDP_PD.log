@@ -1,7 +1,8 @@
-﻿  main.c
+﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (OSDP_PD.vcxproj).  This can lead to incorrect clean and rebuild behavior.
+  main.c
 Q:\Visual Studio\TagProgSim - PC app\main.c(33,8): warning C4013: 'getch' undefined; assuming extern returning int
 Q:\Visual Studio\TagProgSim - PC app\main.c(38,25): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(61,27): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(70,28): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(79,29): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-  OSDP_PD.vcxproj -> Q:\Visual Studio\TagProgSim - PC app\x64\Debug\OSDP_PD.exe
+Q:\Visual Studio\TagProgSim - PC app\main.c(62,27): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+Q:\Visual Studio\TagProgSim - PC app\main.c(91,28): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+Q:\Visual Studio\TagProgSim - PC app\main.c(102,29): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+  OSDP_PD.vcxproj -> Q:\Visual Studio\TagProgSim - PC app\x64\Debug\TagProgSim.exe

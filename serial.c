@@ -6,15 +6,9 @@
 
 HANDLE hComm;
 
-int ptr = 0;
+//int ptr = 0;
 byte idleState[2] = { 0xFF, 0xFF };
 BOOL success = 0;
-
-struct pkt {
-	int len;
-	int cmd;
-	int data[8];
-};
 
 int serial_port_open(char* virtualPort)
 {
@@ -63,7 +57,7 @@ int serial_port_open(char* virtualPort)
 			}
 
 			// Set COM port timeout settings
-			timeouts.ReadIntervalTimeout = 50;
+			timeouts.ReadIntervalTimeout = 150;
 			timeouts.ReadTotalTimeoutConstant = 50;
 			timeouts.ReadTotalTimeoutMultiplier = 10;
 			timeouts.WriteTotalTimeoutConstant = 50;
@@ -79,19 +73,19 @@ int serial_port_open(char* virtualPort)
 }
 
 // To do: prevent buffer overrun
-int serial_port_read(char* rx_buffer)
+BOOL serial_port_read(char* rx_buffer)
 {
 	BOOL  Read_Status;										// Status of the various operations
 	DWORD dwEventMask = 0;
 	unsigned char SerialBuffer[BUFFER_LENGTH + 1] = { 0 };  // Buffer Containing Rxed Data
 	int NumBytesRead = 0;									// Bytes read by ReadFile()
-	int i = 0, j = 0;
+	int i = 0;
 	static BOOL msgStarted = FALSE;
 	static BOOL dataReady = FALSE;
-	struct pkt rxData = { 0 };
-	char cmdBuffer[16];
+	static int ptr = 0;
+	int success = 0;
 
-	// Configure Windows to Monitor the serial device for Character Reception
+	// Configure Windows to monitor the serial device for character reception
 	Read_Status = SetCommMask(hComm, EV_RXCHAR);
 	if (Read_Status == FALSE) {
 		printf("Error in Setting CommMask\n\r");
@@ -112,38 +106,23 @@ int serial_port_read(char* rx_buffer)
 		for (i = 0; i < NumBytesRead; i++) {
 			if (!msgStarted) {
 				if (SerialBuffer[i] == 0xA5) {
+					dataReady = FALSE;
 					ptr = 0;
 					msgStarted = TRUE;
 				}
 			}
 			if (msgStarted) {
-//				*(rx_buffer + ptr) = SerialBuffer[i] & 0xFF;
-				cmdBuffer[ptr++] = SerialBuffer[i];
-				if ((ptr > 1) && (ptr == cmdBuffer[1])) { //(int)rx_buffer[1])) {
+				*(rx_buffer+ptr) = SerialBuffer[i];		// Copy Rx data to rx_buffer
+				ptr++;
+				if ((ptr > 1) && (ptr == *(rx_buffer+1))) {
 					dataReady = TRUE;
+					msgStarted = FALSE;
 					break;
 				}
 			}
 		}
-
-		if (dataReady) {
-//			if ((*rx_buffer == 0xA5) && (*(rx_buffer + 3) == 0x5A)) {		// valid packet
-			if((cmdBuffer[0] == (char)0xA5) && (cmdBuffer[3] == (char)0x5A)) {
-				rxData.len = cmdBuffer[1]; //*(rx_buffer + 1);
-				rxData.cmd = cmdBuffer[2];	//*(rx_buffer + 2);
-			}
-//			for (i = 0; i < strlen(rx_buffer); i++) {
-//				printf(" %hhx", rx_buffer[i] & 0xFF);
-//			}
-			dataReady = FALSE;
-			msgStarted = FALSE;
-			ptr = 0;
-
-			return rxData.cmd;
-		}
 	}
-	
-	return 0;
+	return dataReady;
 }
 
 int write_serial(char* buf, int length)
