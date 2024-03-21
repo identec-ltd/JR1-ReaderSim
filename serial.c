@@ -105,7 +105,7 @@ BOOL serial_port_read(char* rx_buffer)
 		// Copy command data packet into serial buffer
 		for (i = 0; i < NumBytesRead; i++) {
 			if (!msgStarted) {
-				if (SerialBuffer[i] == 0xA5) {
+				if (SerialBuffer[i] != 0xFF) {
 					dataReady = FALSE;
 					ptr = 0;
 					msgStarted = TRUE;
@@ -113,12 +113,12 @@ BOOL serial_port_read(char* rx_buffer)
 			}
 			if (msgStarted) {
 				*(rx_buffer+ptr) = SerialBuffer[i];		// Copy Rx data to rx_buffer
-				ptr++;
-				if ((ptr > 1) && (ptr == *(rx_buffer+1))) {
+				if ((ptr > 0) && (*(rx_buffer+ptr) == 0x0D)) {
 					dataReady = TRUE;
 					msgStarted = FALSE;
 					break;
 				}
+				ptr++;
 			}
 		}
 	}

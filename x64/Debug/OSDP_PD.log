@@ -1,8 +1,9 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (OSDP_PD.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   main.c
-Q:\Visual Studio\TagProgSim - PC app\main.c(33,8): warning C4013: 'getch' undefined; assuming extern returning int
-Q:\Visual Studio\TagProgSim - PC app\main.c(38,25): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(62,27): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(91,28): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
-Q:\Visual Studio\TagProgSim - PC app\main.c(102,29): warning C4267: 'function': conversion from 'size_t' to 'int', possible loss of data
+Q:\Visual Studio\TagProgSim - PC app\serial.h(40,1): warning C4005: 'NO_ERROR': macro redefinition
+  (compiling source file 'main.c')
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(229,1):
+  see previous definition of 'NO_ERROR'
+  
+Q:\Visual Studio\TagProgSim - PC app\main.c(226,12): warning C4013: 'getch' undefined; assuming extern returning int
   OSDP_PD.vcxproj -> Q:\Visual Studio\TagProgSim - PC app\x64\Debug\TagProgSim.exe
