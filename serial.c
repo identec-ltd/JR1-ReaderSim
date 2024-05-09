@@ -134,18 +134,11 @@ int write_serial(char* buf, int length)
 {
 	int dNoOfBytesWritten = 0;
 
-//	printf("PD: ");
-//	for (int i = 0; i < length; i++) {
-//		printf("%02X ", *(buf+i) & 0xFF);
-//	}
 	WriteFile(hComm, idleState, 1, &dNoOfBytesWritten, NULL);			// Send idle byte
 	if (!WriteFile(hComm, buf, length, &dNoOfBytesWritten, NULL)) {		// Send packet
 		printf("Error writing to serial port\r\n");
 		return -1;
 	}
-//	else {
-//		printf("(%d bytes)\n\r", dNoOfBytesWritten);
-//	}
 
 	return 0;
 }

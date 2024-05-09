@@ -56,11 +56,8 @@ unsigned char cmdBuffer_GetByte(void);
 void main()
 {
 	char c, chIn;
-	uint8_t i = 0;
-	boolean tagInit = FALSE;
-	uint16_t check = 0;
-	uint16_t random = 0x408C;
-	uint16_t calc = random ^ 0x55AA;
+	uint8_t i = 0, numTags = 0;
+//	uint16_t check = 0;
 	uint8_t checksum = 0;
 	time_t currentTime;
 	char timeStr[32] = { 0 };
@@ -173,10 +170,27 @@ void main()
 				rxStatus = serial_port_read(rxBuffer);
 			} while (rxStatus == FALSE);
 
-			if ((rxBuffer[0] == REPLY_DISC) && (rxBuffer[1] == 0x30)) {
-				printf("success\n\r");
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
+			{
+				if (rxBuffer[2] == CMD_GET_REPORT)
+				{
+					numTags = (rxBuffer[1] - 6)/8;
+					printf("%u tags found\n\r", numTags);
+
+					if (numTags > 0) {
+						for (i = 0; i < numTags; i++) {
+							printf("%u: HID %02hhX%02hhX, PID %02hhX%02hhX%02hhX%02hhX\n\r", i+1, rxBuffer[5 + (8 * i)],
+								rxBuffer[6 + (8 * i)], rxBuffer[7 + (8 * i)], rxBuffer[8 + (8 * i)],
+								rxBuffer[9 + (8 * i)], rxBuffer[10 + (8 * i)]);
+						}
+					}
+				}
+				else if (rxBuffer[2] == CMD_GET_REPORT | 0x80)
+				{
+					printf("Error\n\r");
+				}
 			}
-			else handleError();
+			else printf("Bad address\n\r");
 
 			break;
 

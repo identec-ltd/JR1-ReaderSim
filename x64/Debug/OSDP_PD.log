@@ -1,13 +1,15 @@
 ﻿C:\Program Files\Microsoft Visual Studio\2022\Community\MSBuild\Microsoft\VC\v170\Microsoft.CppBuild.targets(531,5): warning MSB8028: The intermediate directory (x64\Debug\) contains files shared from another project (OSDP_PD.vcxproj).  This can lead to incorrect clean and rebuild behavior.
   main.c
-C:\repos\BLE\ReaderSim - PC app\main.c(91,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(97,51): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(120,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(126,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(148,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(154,49): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(88,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(94,51): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(117,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(123,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(145,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(151,49): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(173,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(188,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 C:\repos\BLE\ReaderSim - PC app\main.c(58,10): warning C4101: 'chIn': unreferenced local variable
-C:\repos\BLE\ReaderSim - PC app\main.c(65,9): warning C4101: 'currentTime': unreferenced local variable
-C:\repos\BLE\ReaderSim - PC app\main.c(474,9): warning C4129: 'p': unrecognized character escape sequence
-C:\repos\BLE\ReaderSim - PC app\main.c(479,7): warning C4013: 'getch' undefined; assuming extern returning int
+C:\repos\BLE\ReaderSim - PC app\main.c(62,9): warning C4101: 'currentTime': unreferenced local variable
+C:\repos\BLE\ReaderSim - PC app\main.c(488,9): warning C4129: 'p': unrecognized character escape sequence
+C:\repos\BLE\ReaderSim - PC app\main.c(493,7): warning C4013: 'getch' undefined; assuming extern returning int
   OSDP_PD.vcxproj -> C:\repos\BLE\ReaderSim - PC app\x64\Debug\TagProgSim.exe
