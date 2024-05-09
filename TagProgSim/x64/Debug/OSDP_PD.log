@@ -1,0 +1,9 @@
+﻿  main.c
+D:\Identec Limited\BLE Development - Documents\Visual Studio\TagProgSim - PC app\serial.h(40,1): warning C4005: 'NO_ERROR': macro redefinition
+  (compiling source file 'main.c')
+  C:\Program Files (x86)\Windows Kits\10\Include\10.0.22621.0\shared\winerror.h(229,1):
+  see previous definition of 'NO_ERROR'
+  
+D:\Identec Limited\BLE Development - Documents\Visual Studio\TagProgSim - PC app\main.c(279,12): warning C4013: 'getch' undefined; assuming extern returning int
+D:\Identec Limited\BLE Development - Documents\Visual Studio\TagProgSim - PC app\main.c(424,1): warning C4027: function declared without formal parameter list
+  OSDP_PD.vcxproj -> D:\Identec Limited\BLE Development - Documents\Visual Studio\TagProgSim - PC app\x64\Debug\TagProgSim.exe

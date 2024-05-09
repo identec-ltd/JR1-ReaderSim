@@ -58,7 +58,7 @@ int serial_port_open(char* virtualPort)
 
 			// Set COM port timeout settings
 			timeouts.ReadIntervalTimeout = 150;
-			timeouts.ReadTotalTimeoutConstant = 50;
+			timeouts.ReadTotalTimeoutConstant = 500;
 			timeouts.ReadTotalTimeoutMultiplier = 10;
 			timeouts.WriteTotalTimeoutConstant = 50;
 			timeouts.WriteTotalTimeoutMultiplier = 10;
@@ -102,6 +102,10 @@ BOOL serial_port_read(char* rx_buffer)
 	}
 
 	if (NumBytesRead > 0) {
+		if (ptr >= BUFFER_LENGTH) {
+			ptr = 0;
+			msgStarted = FALSE;
+		}
 		// Copy command data packet into serial buffer
 		for (i = 0; i < NumBytesRead; i++) {
 			if (!msgStarted) {
@@ -113,7 +117,8 @@ BOOL serial_port_read(char* rx_buffer)
 			}
 			if (msgStarted) {
 				*(rx_buffer+ptr) = SerialBuffer[i];		// Copy Rx data to rx_buffer
-				if ((ptr > 0) && (*(rx_buffer+ptr) == 0x0D)) {
+				if ((ptr > 2) && (ptr == rx_buffer[1] - 1))
+				{
 					dataReady = TRUE;
 					msgStarted = FALSE;
 					break;
