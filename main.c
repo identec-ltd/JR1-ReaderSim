@@ -89,7 +89,11 @@ void main()
 			{
 				if (rxBuffer[2] == CMD_READ_CONFIG)
 				{
-					printf("success\n\r");
+					printf("success\n\rConfig: ");
+					for (i = 0; i < 32; i++) {
+						printf("%02X ", rxBuffer[i + 3]);
+					}
+					printf("\n\r");
 				}
 				else if (rxBuffer[2] == CMD_READ_CONFIG | 0x80)
 				{
@@ -194,28 +198,72 @@ void main()
 
 			break;
 
-/*		case 'r':		// READ TAG
-			printf("\n\rReading tag configuration...");
+		case 'p':		// SET SCAN PARAMETERS
+			printf("\n\rWriting scan parameters...");
 
-			addCharToCmd(CMD_READ);
-			addCharToCmd(CMD_TERMINATE);
+			addCharToCmd(ADDR_AERIAL_1);
+			addCharToCmd(0x09);
+			addCharToCmd(CMD_SET_PARAMS);
+			addCharToCmd(0);
+			addCharToCmd(1);
+			addCharToCmd(244);
+			addCharToCmd(1);
+			addCharToCmd(244);
+			addCharToCmd(0x5A);
 
 			write_serial(txBuffer, txIndex);
 			do {
 				rxStatus = serial_port_read(rxBuffer);
 			} while (rxStatus == FALSE);
 
-			if ((rxBuffer[0] == REPLY_READ) && (rxBuffer[65] == CMD_PROMPT) && (rxBuffer[66] == CMD_TERMINATE)) {
-				printf("success\n\r\n\r");
-				displayConfig(rxBuffer);
-				memcpy(rxConfig, rxBuffer + 1, sizeof(rxConfig));
-//				displayConfig2();
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
+			{
+				if (rxBuffer[2] == CMD_SET_PARAMS)
+				{
+					printf("success\n\r");
+				}
+				else if (rxBuffer[2] == CMD_SET_PARAMS | 0x80)
+				{
+					handleError();
+				}
 			}
-			else handleError();
+			else printf("Bad address\n\r");
 
 			break;
 
-		case 'p':		// PROGRAM TAG
+		case 'q':		// READ SCAN PARAMETERS
+			printf("\n\rReading scan parameters...");
+
+			addCharToCmd(ADDR_AERIAL_1);
+			addCharToCmd(0x04);
+			addCharToCmd(CMD_GET_PARAMS);
+			addCharToCmd(0x5A);
+
+			write_serial(txBuffer, txIndex);
+			do {
+				rxStatus = serial_port_read(rxBuffer);
+			} while (rxStatus == FALSE);
+
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
+			{
+				if (rxBuffer[2] == CMD_GET_PARAMS)
+				{
+					uint16_t i = (rxBuffer[4] << 8) + (uint8_t)rxBuffer[5];
+					uint16_t w = (rxBuffer[6] << 8) + (uint8_t)rxBuffer[7];
+					printf("success\n\rParameters: ");
+					printf("Mode %u, ", rxBuffer[3]);
+					printf("Interval %lu, Window %lu\n\r", i, w);
+				}
+				else if (rxBuffer[2] == CMD_GET_PARAMS | 0x80)
+				{
+					handleError();
+				}
+			}
+			else printf("Bad address\n\r");
+
+			break;
+
+/*		case 'p':		// PROGRAM TAG
 			printf("\n\rConfiguration programming...");
 
 			addCharToCmd(CMD_PROG);
@@ -480,20 +528,23 @@ void appInit()
 char getCommand()
 {
 	char i;
+	static int8_t count = 5;
 
-	printf("\n\rr - read aerial configuration\n\rs - set aerial configuration\n\r");
-	printf("x - start scanning\n\ry - stop scanning\n\r");
-	printf("g - get scan report\n\rt - set time & date\n\r");
-	printf("h - add hid\n\rl - LED control\n\r");
-	printf("b - buzzer control\n\p - set scan parameters\n\r");
-	printf("q - read scan parameters\n\r");//y - read time & date\n\r");
-//	printf("f - read firmware version\n\rl - LED control\n\r");
+	if (count-- == 5) {
+		printf("\n\rr - read aerial configuration\n\rs - set aerial configuration\n\r");
+		printf("x - start scanning\n\ry - stop scanning\n\r");
+		printf("g - get scan report\n\rt - set time & date\n\r");
+		printf("h - add hid\n\rl - LED control\n\r");
+		printf("b - buzzer control\n\p - set scan parameters\n\r");
+		printf("q - read scan parameters\n\r");
+	}
+	if (count == 0) count = 5;
 
 	do {
 		i = getch(stdin);
 	} while ((i != 'r') && (i != 's') && (i != 'x') && (i != 'y') && (i != 'g')
 		&& (i != 't') && (i != 'h') && (i != 'l') && (i != 'b') && (i != 'p')
-		&& (i != 'q'));// && (i != 'd') && (i != 'x') && (i != 'y'));
+		&& (i != 'q'));
 
 	return i;
 }
