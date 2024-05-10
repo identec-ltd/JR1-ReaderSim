@@ -2,11 +2,11 @@
   main.c
 C:\repos\BLE\ReaderSim - PC app\main.c(88,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 C:\repos\BLE\ReaderSim - PC app\main.c(94,51): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(117,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(123,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(145,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(151,49): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
-C:\repos\BLE\ReaderSim - PC app\main.c(173,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(116,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(122,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(144,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(150,49): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
+C:\repos\BLE\ReaderSim - PC app\main.c(172,43): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 C:\repos\BLE\ReaderSim - PC app\main.c(188,50): warning C4554: '|': check operator precedence for possible error; use parentheses to clarify precedence
 C:\repos\BLE\ReaderSim - PC app\main.c(58,10): warning C4101: 'chIn': unreferenced local variable
 C:\repos\BLE\ReaderSim - PC app\main.c(62,9): warning C4101: 'currentTime': unreferenced local variable

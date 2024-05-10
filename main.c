@@ -93,10 +93,9 @@ void main()
 				}
 				else if (rxBuffer[2] == CMD_READ_CONFIG | 0x80)
 				{
-					printf("Error\n\r");
+					handleError();
 				}
 			}
-			//else handleError();
 			else printf("Bad address\n\r");
 
 			break;
@@ -122,7 +121,7 @@ void main()
 			}
 				else if (rxBuffer[2] == CMD_START_SCAN | 0x80)
 				{
-					printf("Error\n\r");
+					handleError();
 				}
 			}
 			else printf("Bad address\n\r");
@@ -150,7 +149,7 @@ void main()
 				}
 				else if (rxBuffer[2] == CMD_STOP_SCAN | 0x80)
 				{
-					printf("Error\n\r");
+					handleError();
 				}
 			}
 			else printf("Bad address\n\r");
@@ -179,15 +178,16 @@ void main()
 
 					if (numTags > 0) {
 						for (i = 0; i < numTags; i++) {
-							printf("%u: HID %02hhX%02hhX, PID %02hhX%02hhX%02hhX%02hhX\n\r", i+1, rxBuffer[5 + (8 * i)],
+							printf("%u: HID %02hhX%02hhX, PID %02hhX%02hhX%02hhX%02hhX, ", i+1, rxBuffer[5 + (8 * i)],
 								rxBuffer[6 + (8 * i)], rxBuffer[7 + (8 * i)], rxBuffer[8 + (8 * i)],
 								rxBuffer[9 + (8 * i)], rxBuffer[10 + (8 * i)]);
+							printf("RSSI %i, Batt %u\n\r", rxBuffer[11 + (8*i)], rxBuffer[12 + (8*i)]);
 						}
 					}
 				}
 				else if (rxBuffer[2] == CMD_GET_REPORT | 0x80)
 				{
-					printf("Error\n\r");
+					handleError();
 				}
 			}
 			else printf("Bad address\n\r");
@@ -500,50 +500,35 @@ char getCommand()
 
 void handleError()
 {
-	if ((rxBuffer[0] == 0x23) && (rxBuffer[3] == CMD_PROMPT) && (rxBuffer[4] == CMD_TERMINATE))
-	{
-		printf("error - ");
-		switch (rxBuffer[2])
-		{
-		case ERROR_NOT_INIT:
-			printf("programmer not initialised\n\r");
-			break;
-		case ERROR_UNKNOWN_CMD:
-			printf("command not recognised\n\r");
-			break;
-		case ERROR_INVALID_CMD:
-			printf("invalid command\n\r");
-			break;
-		case ERROR_NO_TAG_FOUND:
-			printf("no tag found\n\r");
-			break;
-		case ERROR_OUT_OF_RANGE:
-			printf("value out of range");
-			break;
-		case ERROR_PROG_DATA:
-			printf("unable to program\n\r");
-			break;
-		case ERROR_OTB_IS_SET:
-			printf("one-time bit is set\n\r");
-			break;
-		case ERROR_CLEAR_OTB:
-			printf("unable to clear one-time bit\n\r");
-			break;
-		case ERROR_SET_OTB:
-			printf("unable to set one-time bit\n\r");
-			break;
-		case ERROR_ERASE_DATA:
-			printf("unable to erase configuration data\n\r");
-			break;
-		case 0x41:		//ERROR_NO_TAG_CONN:
-			printf("no tag connected\n\r");
-			break;
-		default:
-			printf("unknown error\n\r");
-			break;
-		}
-	}
+	printf("error - ");
 
+	switch (rxBuffer[3])	// Read error code
+	{
+	case ERROR_INVALID_CMD:
+		printf("invalid command\n\r");
+		break;
+	case ERROR_UNKNOWN_CMD:
+		printf("command not recognised\n\r");
+		break;
+	case ERROR_DATA_OUT_OF_RANGE:
+		printf("argument out of range\n\r");
+		break;
+	case ERROR_UNABLE_TO_EXECUTE:
+		printf("cannot execute command\n\r");
+		break;
+	case ERROR_NOT_SCANNING:
+		printf("aerial is not currently scanning");
+		break;
+	case ERROR_ALREADY_SCANNING:
+		printf("aerial is already scanning\n\r");
+		break;
+	case ERROR_NOT_CONFIGURED:
+		printf("aerial is not configured\n\r");
+		break;
+	default:
+		printf("unknown error\n\r");
+		break;
+	}
 	memset(rxBuffer, 0x00, sizeof(rxBuffer));
 }
 
@@ -620,10 +605,3 @@ void displayConfig(uint8_t* p)
 	printf("\n\rSecurity byte:\t\t%c%c\n\r", *(p+62), *(p+63));
 }
 
-void displayConfig2()
-{
-	printf("HID:\t\t\t");
-
-
-
-}
