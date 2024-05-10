@@ -17,6 +17,7 @@
 #define CMD_BUZZER			0x42	// B
 #define CMD_SET_PARAMS		0x50	// P
 #define CMD_GET_PARAMS		0x51	// Q
+#define CMD_ADD_HID			0x48	// H
 
 #define CMD_PROMPT			0x3E
 #define CMD_TERMINATE		0x0D
@@ -41,6 +42,9 @@
 #define ERROR_NOT_SCANNING		0x05
 #define ERROR_ALREADY_SCANNING	0x06
 #define ERROR_NOT_CONFIGURED	0x07
+#define ERROR_HID_LIST_FULL		0x08
+#define ERROR_HID_LIST_EMPTY	0x09
+#define ERROR_BAD_CHECKSUM		0x0A
 
 #define RX_FAIL				0
 #define RX_INCOMPLETE		1

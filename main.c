@@ -12,20 +12,11 @@ BOOL rxStatus = FALSE;
 uint8_t txIndex = 0;
 uint8_t rxIndex = 0;
 
-configFile cf;
-uint8_t prog[] = {	0x00, 0x00,					// log mask
-					0x12, 0x34,					// hid
-					0x80, 0x81, 0x82, 0x83,		// pid
-					0x00, 0x00, 0x00, 0x00,		// flags
-					0x64, 0x10, 0x04, 0x02,		// inac, acc, advi, advc
-					0x10, 0x2c, 				// txp, shk
-					0x00, 0x00, 0x00, 0x00,		// reserved x13
-					0x00, 0x00, 0x00, 0x00,
-					0x00, 0x00, 0x00, 0x00,
-					0x00,
-					0x00 };						// checksum
-					
-uint8_t rxConfig[32] = { 0 };
+uint16_t hid = 0x1234;
+uint8_t ledData = 1;
+uint8_t buzzerData = 1;
+
+//configFile cf;
 
 typedef struct
 {
@@ -41,9 +32,10 @@ typedef union
 
 void appInit(void);
 char getCommand(void);
+void addChecksum(void);
 void handleError(void);
-void displayConfig(uint8_t *p);
-void displayConfig2(void);
+//void displayConfig(uint8_t *p);
+//void displayConfig2(void);
 
 void addHexByteToCmd(uint8_t b);
 void addHexChar(uint8_t b);
@@ -55,7 +47,7 @@ unsigned char cmdBuffer_GetByte(void);
 
 void main()
 {
-	char c, chIn;
+	char c;//, chIn;
 	uint8_t i = 0, numTags = 0;
 //	uint16_t check = 0;
 	uint8_t checksum = 0;
@@ -78,7 +70,7 @@ void main()
 			addCharToCmd(ADDR_AERIAL_1);
 			addCharToCmd(0x04);
 			addCharToCmd(CMD_READ_CONFIG);
-			addCharToCmd(0x5A);			// Checksum
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -100,8 +92,6 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
 		case 'x':		// START SCANNING
@@ -110,7 +100,7 @@ void main()
 			addCharToCmd(ADDR_AERIAL_1);
 			addCharToCmd(0x04);
 			addCharToCmd(CMD_START_SCAN);
-			addCharToCmd(0x5A);
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -128,8 +118,6 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
 		case 'y':		// STOP_SCANNING
@@ -138,7 +126,7 @@ void main()
 			addCharToCmd(ADDR_AERIAL_1);
 			addCharToCmd(0x04);
 			addCharToCmd(CMD_STOP_SCAN);
-			addCharToCmd(0x5A);
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -156,8 +144,6 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
 		case 'g':
@@ -166,7 +152,7 @@ void main()
 			addCharToCmd(ADDR_AERIAL_1);
 			addCharToCmd(0x04);
 			addCharToCmd(CMD_GET_REPORT);
-			addCharToCmd(0x5A);
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -194,8 +180,6 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
 		case 'p':		// SET SCAN PARAMETERS
@@ -209,7 +193,7 @@ void main()
 			addCharToCmd(244);
 			addCharToCmd(1);
 			addCharToCmd(244);
-			addCharToCmd(0x5A);
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -227,8 +211,6 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
 		case 'q':		// READ SCAN PARAMETERS
@@ -237,7 +219,7 @@ void main()
 			addCharToCmd(ADDR_AERIAL_1);
 			addCharToCmd(0x04);
 			addCharToCmd(CMD_GET_PARAMS);
-			addCharToCmd(0x5A);
+			addChecksum();
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -259,252 +241,97 @@ void main()
 					handleError();
 				}
 			}
-			else printf("Bad address\n\r");
-
 			break;
 
-/*		case 'p':		// PROGRAM TAG
-			printf("\n\rConfiguration programming...");
+		case 'h':		// ADD HID
+			printf("\n\rAdding HID %04X...", hid);
 
-			addCharToCmd(CMD_PROG);
+			addCharToCmd(ADDR_AERIAL_1);
+			addCharToCmd(0x06);
+			addCharToCmd(CMD_ADD_HID);
+			addCharToCmd((hid >> 8) & 0xFF);
+			addCharToCmd(hid & 0xFF);
+			addChecksum();
+			hid += 0x17;
 
-			checksum = prog[0];								// Calculate & append checksum
-			for (i = 0; i < sizeof(prog)-1; i++)
+			write_serial(txBuffer, txIndex);
+			do {
+				rxStatus = serial_port_read(rxBuffer);
+			} while (rxStatus == FALSE);
+
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
 			{
-				checksum ^= prog[i];
-			}
-			prog[31] = checksum;
-
-			for (i = 0; i < sizeof(prog); i++) {			// Send predefined 'prog' config file
-				addHexByteToCmd(prog[i]);
-			}
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_PROG) && (rxBuffer[65] == CMD_PROMPT) && (rxBuffer[66] == CMD_TERMINATE)) {
-				printf("success\n\r");
-				displayConfig(rxBuffer);
-				for (i = 0; i < sizeof(rxConfig); i++) {
-					rxConfig[i] = (rxBuffer[rxIndex] - '0') << 4;
-					rxConfig[i] += (rxBuffer[rxIndex + 1] - '0');
-					rxIndex += 2;
-				}
-			}
-			else handleError();
-
-			break;
-
-		case 'e':		// ERASE TAG
-			printf("\n\rErasing tag configuration...");
-
-			addCharToCmd(CMD_ERASE);
-			for(i = 0; i < 6; i++) {
-				addHexByteToCmd(0x00);
-			}
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_ERASE) && (rxBuffer[65] == CMD_PROMPT) && (rxBuffer[66] == CMD_TERMINATE)) {
-				printf("success\n\r");
-				displayConfig(rxBuffer);
-				memcpy(rxConfig, rxBuffer + 1, sizeof(rxConfig));
-			}
-			else handleError();
-
-			break;
-
-		case 's':		// SET OTB
-			printf("\n\rSetting OTB...");
-
-			addCharToCmd(CMD_SET_OTB);
-			for (i = 0; i < 6; i++) {
-				addHexByteToCmd(rxConfig[i]);
-			}
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_SET_OTB) && (rxBuffer[1] == 0x31) &&
-				(rxBuffer[2] == CMD_PROMPT) && (rxBuffer[3] == CMD_TERMINATE)) {
-				printf("success\n\r");
-			}
-			else handleError();
-
-			break;
-
-		case 't':		// CLEAR OTB
-			printf("\n\rClearing OTB...");
-
-			addCharToCmd(CMD_CLR_OTB);
-			for (i = 2; i < 8; i++) {
-				addHexByteToCmd(rxConfig[i]);
-			}
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_CLR_OTB) && (rxBuffer[1] == 0x31) &&
-				(rxBuffer[2] == CMD_PROMPT) && (rxBuffer[3] == CMD_TERMINATE)) {
-				printf("success\n\r");
-			}
-			else handleError();
-
-			break;
-
-		case 'u':		// READ OTB
-			printf("\n\rReading OTB...");
-
-			addCharToCmd(CMD_READ_OTB);
-			for (i = 0; i < 6; i++) {
-				addHexByteToCmd(rxConfig[i]);
-			}
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_READ_OTB) && (rxBuffer[2] == CMD_PROMPT) && (rxBuffer[3] == CMD_TERMINATE)) {
-				if (rxBuffer[1] == 0x30) printf("currently CLEARED\n\r");
-				else if (rxBuffer[1] == 0x31) printf("currently SET\n\r");
-				else printf("status unknown\n\r");
-			}
-			else handleError();
-
-			break;
-
-		case 'f':		// READ FW VERSION
-			printf("\n\rGetting firmware version...");
-
-			addCharToCmd(CMD_READ_FW);
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_READ_FW) && (rxBuffer[11] == CMD_PROMPT) && (rxBuffer[12] == CMD_TERMINATE)) {
-				printf("success\n\rFirmware: ");
-				for (i = 1; i < 11; i++) {
-					printf("%c", rxBuffer[i]);
-				}
-				printf("\n\r");
-			}
-			else handleError();
-
-			break;
-
-		case 'l':		// SET LEDS
-			printf("\n\rLED control\n\rEnter LED3 state: ");
-
-			addCharToCmd(CMD_LED);
-			do {
-				chIn = getch(stdin);
-			} while ((chIn != '0') && (chIn != '1'));
-			if (chIn == '0') addCharToCmd(0x30);
-			else addCharToCmd(0x31);
-
-			printf("%c\n\rEnter LED4 state: ", chIn);
-			do {
-				chIn = getch(stdin);
-			} while ((chIn != '0') && (chIn != '1'));
-			if (chIn == '0') addCharToCmd(0x30);
-			else addCharToCmd(0x31);
-			printf("%c\n\r", chIn);
-
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == CMD_PROMPT) && (rxBuffer[1] == CMD_TERMINATE)) {
-				printf("Done\n\r");
-			}
-			else handleError();
-
-			break;
-
-		case 'x':		// Set time & Date
-			printf("Programming time & date...");
-
-			currentTime = time(NULL);
-			ctime_s(timeStr, sizeof(timeStr), &currentTime);
-			timeStr[strlen(timeStr) - 1] = '\0';
-
-			printf("%s\n\r", timeStr);
-			//printf("%lX", currentTime);
-
-			addCharToCmd(CMD_WRITE_TIME);
-			addHexByteToCmd((currentTime >> 24) & 0xFF);
-			addHexByteToCmd((currentTime >> 16) & 0xFF);
-			addHexByteToCmd((currentTime >> 8) & 0xFF);
-			addHexByteToCmd((currentTime) & 0xFF);
-			addCharToCmd(CMD_TERMINATE);
-
-			write_serial(txBuffer, txIndex);
-			do {
-				rxStatus = serial_port_read(rxBuffer);
-			} while (rxStatus == FALSE);
-
-			if ((rxBuffer[0] == REPLY_WRITE_TIME) && (rxBuffer[2] == CMD_PROMPT) && (rxBuffer[3] == CMD_TERMINATE))
-			{
-				if (rxBuffer[2] == 0x31) {
+				if (rxBuffer[2] == CMD_ADD_HID)
+				{
 					printf("success\n\r");
 				}
+				else if (rxBuffer[2] == CMD_ADD_HID | 0x80)
+				{
+					handleError();
+				}
 			}
-			else handleError();
-
 			break;
 
-		case 'y':
-			printf("Reading time & date...");
+		case 'l':		// LED CONTROL
+			printf("\n\rSending LED data...");
 
-			addCharToCmd(CMD_READ_TIME);
-			addCharToCmd(CMD_TERMINATE);
+			addCharToCmd(ADDR_AERIAL_1);
+			addCharToCmd(0x05);
+			addCharToCmd(CMD_LED);
+			addCharToCmd(ledData++);
+			addChecksum();
+			if (ledData >= 3) ledData = 0;
 
 			write_serial(txBuffer, txIndex);
 			do {
 				rxStatus = serial_port_read(rxBuffer);
 			} while (rxStatus == FALSE);
 
-			if ((rxBuffer[0] == REPLY_READ_TIME) && (rxBuffer[9] == CMD_PROMPT) && 
-				(rxBuffer[10] == CMD_TERMINATE)) {
-				currentTime = 0;
-				//rxIndex = 1;
-
-				for (i = 0; i < 4; i++) {
-					currentTime += cmdBuffer_GetByte() << ((3 - i) * 8);
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
+			{
+				if (rxBuffer[2] == CMD_LED)
+				{
+					printf("success\n\r");
 				}
-				ctime_s(timeStr, sizeof(timeStr), &currentTime);
-				timeStr[strlen(timeStr) - 1] = '\0';
-
-				printf("%s\n\r", timeStr);
+				else if (rxBuffer[2] == CMD_LED | 0x80)
+				{
+					handleError();
+				}
 			}
-			else handleError();
+			break;
 
-			break;*/
+		case 'b':		// BUZZER CONTROL
+			printf("\n\rToggling buzzer...");
+
+			addCharToCmd(ADDR_AERIAL_1);
+			addCharToCmd(0x05);
+			addCharToCmd(CMD_BUZZER);
+			addCharToCmd(buzzerData++);
+			addChecksum();
+			if (buzzerData >= 2) buzzerData = 0;
+
+			write_serial(txBuffer, txIndex);
+			do {
+				rxStatus = serial_port_read(rxBuffer);
+			} while (rxStatus == FALSE);
+
+			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
+			{
+				if (rxBuffer[2] == CMD_BUZZER)
+				{
+					printf("success\n\r");
+				}
+				else if (rxBuffer[2] == CMD_BUZZER | 0x80)
+				{
+					handleError();
+				}
+			}
+			break;
+
+		// case 't':	// SET TIME & DATE
 
 		default:
 			printf("Unknown command\n\r\n\r");
-
 			break;
 		}
 	}
@@ -549,6 +376,18 @@ char getCommand()
 	return i;
 }
 
+void addChecksum()
+{
+	uint8_t i = 0;
+	uint8_t chksm = 0;
+
+	for (i = 0; i < txIndex; i++)
+	{
+		chksm ^= txBuffer[i];
+	}
+	txBuffer[txIndex++] = chksm;
+}
+
 void handleError()
 {
 	printf("error - ");
@@ -575,6 +414,15 @@ void handleError()
 		break;
 	case ERROR_NOT_CONFIGURED:
 		printf("aerial is not configured\n\r");
+		break;
+	case ERROR_HID_LIST_FULL:
+		printf("HID list is full\n\r");
+		break;
+	case ERROR_HID_LIST_EMPTY:
+		printf("HID list is empty\n\r");
+		break;
+	case ERROR_BAD_CHECKSUM:
+		printf("bad checksum\n\r");
 		break;
 	default:
 		printf("unknown error\n\r");
@@ -621,38 +469,4 @@ unsigned char cmdBuffer_GetByte()    // reads 8 bits from usb_buffer
 	return b.byte;
 }
 
-
-void displayConfig(uint8_t* p)
-{
-	uint8_t i = 0;
-	p += 1;
-	
-	printf("HID:\t\t\t");
-	for (i = 4; i < 8; i++) {
-		printf("%c", *(p+i));
-	}
-	printf("\n\rPID:\t\t\t");
-	for (i = 8; i < 16; i++) {
-		printf("%c", *(p+i));
-	}
-	printf("\n\rFlags:\t\t\t");
-	for (i = 16; i < 24; i++) {
-		printf("%c", *(p+i));
-	}
-	printf("\n\rInactivity timeout:\t%c%c\n\r", *(p+24), *(p+25));
-	printf("Accel threshold:\t%c%c\n\r", *(p+26), *(p+27));
-	printf("Adv interval:\t\t%c%c\n\r", *(p+28), *(p+29));
-	printf("Adv count:\t\t%c%c\n\r", *(p+30), *(p+31));
-	printf("Tx power:\t\t%c%c\n\r", *(p+32), *(p+33));
-	printf("Log mask:\t\t");
-	for (i = 0; i < 4; i++) {
-		printf("%c", *(p+i));
-	}
-	printf("\n\rShock threshold:\t%c%c\n\r", *(p+34), *(p+35));
-	printf("Reserved: \t\t");
-	for (i = 36; i < 62; i++) {
-		printf("%c", *(p+i));
-	}
-	printf("\n\rSecurity byte:\t\t%c%c\n\r", *(p+62), *(p+63));
-}
 
