@@ -43,7 +43,7 @@ int serial_port_open(char* virtualPort)
 				return 1;
 			}
 
-			dcbSerialParams.BaudRate = CBR_19200;      // Setting BaudRate = 19200
+			dcbSerialParams.BaudRate = CBR_115200;      // Setting BaudRate = 19200
 			dcbSerialParams.ByteSize = 8;             // Setting ByteSize = 8
 			dcbSerialParams.StopBits = ONESTOPBIT;    // Setting StopBits = 1
 			dcbSerialParams.Parity = NOPARITY;      // Setting Parity = None
@@ -57,11 +57,11 @@ int serial_port_open(char* virtualPort)
 			}
 
 			// Set COM port timeout settings
-			timeouts.ReadIntervalTimeout = 150;
-			timeouts.ReadTotalTimeoutConstant = 500;
-			timeouts.ReadTotalTimeoutMultiplier = 10;
-			timeouts.WriteTotalTimeoutConstant = 50;
-			timeouts.WriteTotalTimeoutMultiplier = 10;
+			timeouts.ReadIntervalTimeout = 150;					// max time(ms) allowed between bytes before returning
+			timeouts.ReadTotalTimeoutConstant = 500;			// added to calc below
+			timeouts.ReadTotalTimeoutMultiplier = 0;			// used to calculate total read timeout(ms) - x no bytes requested
+			timeouts.WriteTotalTimeoutConstant = 50;			// added to calc below
+			timeouts.WriteTotalTimeoutMultiplier = 10;			// used to calculate total write timeout(ms) - x no bytes to be written
 			if (SetCommTimeouts(hComm, &timeouts) == 0) {
 				printf("Error setting timeouts\n");
 				CloseHandle(hComm);

@@ -4,7 +4,7 @@
 #include "serial.h"
 #include "msgHandler.h"
 
-char* pcCommPort = "COM3";
+char* pcCommPort = "COM8";
 int status = 0;
 char txBuffer[BUFFER_LENGTH] = { 0 };
 char rxBuffer[BUFFER_LENGTH] = { 0 };
@@ -49,16 +49,15 @@ void main()
 {
 	char c;//, chIn;
 	uint8_t i = 0, numTags = 0;
-//	uint16_t check = 0;
 	uint8_t checksum = 0;
 	time_t currentTime;
 	char timeStr[32] = { 0 };
 
-	appInit();
+	appInit();											// Open serial port
 	
 	while (1)
 	{
-		c = getCommand();
+		c = getCommand();								// User input
 		txIndex = 0;
 		rxIndex = 1;
 
@@ -74,7 +73,7 @@ void main()
 
 			write_serial(txBuffer, txIndex);
 			do {
-				rxStatus = serial_port_read(rxBuffer);
+				rxStatus = serial_port_read(rxBuffer);		// Consider using ReadFile instead to avoid hanging: ReadFile(hComm, &buf, nBytes, &bytesRead, 0)
 			} while (rxStatus == FALSE);
 
 			if (rxBuffer[0] == ADDR_AERIAL_1 | 0x80)
@@ -332,6 +331,8 @@ void main()
 
 		default:
 			printf("Unknown command\n\r\n\r");
+			memset(txBuffer, 0, sizeof(txBuffer));
+			txIndex = 0;
 			break;
 		}
 	}
@@ -358,20 +359,20 @@ char getCommand()
 	static int8_t count = 5;
 
 	if (count-- == 5) {
-		printf("\n\rr - read aerial configuration\n\rs - set aerial configuration\n\r");
+		printf("\n\rr - read aerial configuration\n\r");	//s - set aerial configuration\n\r");
 		printf("x - start scanning\n\ry - stop scanning\n\r");
-		printf("g - get scan report\n\rt - set time & date\n\r");
-		printf("h - add hid\n\rl - LED control\n\r");
-		printf("b - buzzer control\n\p - set scan parameters\n\r");
-		printf("q - read scan parameters\n\r");
+		printf("g - get scan report\n\r");	//t - set time & date\n\r");
+		printf("h - add hid\n\r");	//l - LED control\n\r");
+//		printf("b - buzzer control\n\r"); //p - set scan parameters\n\r");
+//		printf("q - read scan parameters\n\r");
 	}
 	if (count == 0) count = 5;
 
 	do {
 		i = getch(stdin);
-	} while ((i != 'r') && (i != 's') && (i != 'x') && (i != 'y') && (i != 'g')
-		&& (i != 't') && (i != 'h') && (i != 'l') && (i != 'b') && (i != 'p')
-		&& (i != 'q'));
+	} while ((i != 'r') && /*(i != 's') && */(i != 'x') && (i != 'y') && (i != 'g')
+		/* && (i != 't')*/ && (i != 'h'));	// && (i != 'l') && (i != 'b'));	// && (i != 'p')
+//		&& (i != 'q'));
 
 	return i;
 }
