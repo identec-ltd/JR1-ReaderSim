@@ -1,5 +1,6 @@
 #include <windows.h>
 #include <stdio.h>
+#include <stdlib.h>
 #include <time.h>
 #include "serial.h"
 #include "msgHandler.h"
@@ -13,7 +14,7 @@ uint8_t txIndex = 0;
 uint8_t rxIndex = 0;
 
 uint16_t hid = 0x1234;
-uint8_t ledData = 1;
+uint8_t ledData[3] = { 0 };
 uint8_t buzzerData = 1;
 
 //configFile cf;
@@ -34,6 +35,9 @@ void appInit(void);
 char getCommand(void);
 void addChecksum(void);
 void handleError(void);
+static uint8_t getLEDValue(void);
+uint8_t hex2int(char ch);
+
 //void displayConfig(uint8_t *p);
 //void displayConfig2(void);
 
@@ -47,7 +51,7 @@ unsigned char cmdBuffer_GetByte(void);
 
 void main()
 {
-	char c;//, chIn;
+	char c, chIn;
 	uint8_t i = 0, numTags = 0;
 	uint8_t checksum = 0;
 	time_t currentTime;
@@ -272,14 +276,21 @@ void main()
 			break;
 
 		case 'l':		// LED CONTROL
-			printf("\n\rSending LED data...");
+			for (i = 0; i < 3; i++) {
+				if (i == 0) printf("Enter RED value: ");
+				else if (i == 1) printf("Enter GREEN value: ");
+				else if (i == 2) printf("Enter BLUE value: ");
+				ledData[i] = getLEDValue();
+			}
 
 			addCharToCmd(ADDR_AERIAL_1);
-			addCharToCmd(0x05);
+			addCharToCmd(0x0A);
 			addCharToCmd(CMD_LED);
-			addCharToCmd(ledData++);
+			addHexByteToCmd(ledData[0]);
+			addHexByteToCmd(ledData[1]);
+			addHexByteToCmd(ledData[2]);
 			addChecksum();
-			if (ledData >= 3) ledData = 0;
+			printf("\n\rSending LED data...");
 
 			write_serial(txBuffer, txIndex);
 			do {
@@ -362,7 +373,7 @@ char getCommand()
 		printf("\n\rr - read aerial configuration\n\r");	//s - set aerial configuration\n\r");
 		printf("x - start scanning\n\ry - stop scanning\n\r");
 		printf("g - get scan report\n\r");	//t - set time & date\n\r");
-		printf("h - add hid\n\r");	//l - LED control\n\r");
+		printf("h - add hid\n\rl - LED control\n\r");
 //		printf("b - buzzer control\n\r"); //p - set scan parameters\n\r");
 //		printf("q - read scan parameters\n\r");
 	}
@@ -371,7 +382,7 @@ char getCommand()
 	do {
 		i = getch(stdin);
 	} while ((i != 'r') && /*(i != 's') && */(i != 'x') && (i != 'y') && (i != 'g')
-		/* && (i != 't')*/ && (i != 'h'));	// && (i != 'l') && (i != 'b'));	// && (i != 'p')
+		/* && (i != 't')*/ && (i != 'h') && (i != 'l')); // && (i != 'b'));	// && (i != 'p')
 //		&& (i != 'q'));
 
 	return i;
@@ -432,20 +443,59 @@ void handleError()
 	memset(rxBuffer, 0x00, sizeof(rxBuffer));
 }
 
-void addHexByteToCmd(uint8_t b)
+uint8_t getLEDValue()
+{
+	uint8_t ret = 0;
+	char chIn;
+
+	do {
+		chIn = getch(stdin);
+	} while (((chIn < 0x30) || (chIn > 0x39)) &&
+		((chIn < 0x41) || (chIn > 0x46)) &&
+		((chIn < 0x61) || (chIn > 0x66)));
+	printf("%c", chIn);
+	ret += hex2int(chIn);
+	ret <<= 4;
+
+	do {
+		chIn = getch(stdin);
+	} while (((chIn < 0x30) || (chIn > 0x39)) &&
+		((chIn < 0x41) || (chIn > 0x46)) &&
+		((chIn < 0x61) || (chIn > 0x66)));
+	printf("%c ", chIn);
+	ret += hex2int(chIn);
+	printf("(%.0f%%)\n\r", (float)(ret / 255.0) * 100.0);
+
+	return ret;
+}
+
+uint8_t hex2int(char ch)
+{
+	if (ch >= '0' && ch <= '9')
+		return ch - '0';
+	if (ch >= 'A' && ch <= 'F')
+		return ch - 'A' + 10;
+	if (ch >= 'a' && ch <= 'f')
+		return ch - 'a' + 10;
+	return -1;
+}
+
+// For sending data
+
+void addHexByteToCmd(uint8_t b)		// Splits a 2-char byte to 2 bytes
 {
 	addHexChar((b >> 4) & 0xF);
 	addHexChar(b & 0xFF);
 }
 
-void addHexChar(uint8_t b)
+void addHexChar(uint8_t b)			// Encodes a hex byte to buffer
 {
 	b &= 0x0F;
 	b += (b < 10) ? '0' : 'A' - 10;
 	txBuffer[txIndex++] = b;
 }
 
-void addCharToCmd(char c)
+void addCharToCmd(char c)			// Adds a char to buffer
 {
 	txBuffer[txIndex++] = c;
 }
